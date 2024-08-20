@@ -1,0 +1,6 @@
+services:
+  path_processor.ucb_linkmod:
+    class: Drupal\ucb_linkmod\PathProcessor\PathProcessorUcbLinkmod
+    tags:
+      - { name: path_processor_inbound }
+      - { name: path_processor_outbound }
