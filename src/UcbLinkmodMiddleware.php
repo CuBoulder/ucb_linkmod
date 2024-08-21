@@ -62,6 +62,8 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
     {
         if (PHP_SAPI !== 'cli')
         {
+            // functionality is dependent upon the Pantheon Domain Masking Module...
+            // grab required configuration for site paths from there  
             $config = $this->configFactory->get('pantheon_domain_masking.settings');
             $domain = $config->get('domain');
             $subpath = $config->get('subpath', '');
@@ -75,32 +77,39 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
 
                 $response = $this->httpKernel->handle($request, $type, $catch);
 
-                \Drupal::logger('ucb_linkmod')->info($response->getContent());
+//                \Drupal::logger('ucb_linkmod')->info($response->getContent());
 
                 $html = new HtmlDocument();
 
                 $html->load($response->getContent());
 
+                // look for anchor tags inside of the main content body 
                 foreach($html->find('.ucb-page-content a') as $key=>$element) {
                     $newelement = $html->find('.ucb-page-content a', $key);
 
-
                     $href = $newelement->href;
+                    
+                    // if we have an anchor that isn't blank 
                     if($href != false)
                     {
+                        // Look for p-value patterns in a absolute path (e.g. https://www.colorado.edu/p1ab3d5fgh9j)
                         if(preg_match('/https:\/\/www\.colorado\.edu\/p1[0-9 a-z]{10}/', $href))
                         {
+                            // strip off the first 37 characters which will leave just the relative content path starting with a /
                             $href = substr($href, 37);
+                            // the next section of code should match and pick this up to finish correcting the URL now
 
                         }
-
+                        // we're looking to correct all relative links at this point while ignoring anything with a protocol
                         if (str_starts_with($href, '/'))
                         {
+                            // look for the p-value and strip it off of the URL if it is detected 
                             if(preg_match('/p1[0-9 a-z]{10}/', $href))
                             {
                                 $href = substr($href, 13);
                             }
 
+                            // find any relative links that don't have the site's subpath on them and prepend that 
                             if (!str_starts_with($href, '/' . $subpath . '/'))
                             {
                                 $href = '/' . $subpath . $href;
@@ -108,13 +117,16 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
                         }
                     }
 
+                    // links should be correctly formatted now.  
                     $newelement->href = $href;
                 }
 
 
 
-                \Drupal::logger('ucb_linkmod')->info((string)$html);
+                // \Drupal::logger('ucb_linkmod')->info((string)$html);
 
+                // we've adjusted the length of the content so we'll need to recalculate the Content-Length header
+                // before we return the updated response
                 $response->setContent((string)$html);
                 $response->headers->set('Content-Length', (string)strlen((string)$html));
 
