@@ -1,0 +1,6 @@
+{
+	"name": "cu-boulder/ucb_linkmod",
+	"description": "Module to parse and correct URLs patterns for the CU Boulder Web Express environment.",
+	"license": "GPL-2.0-or-later",
+	"type": "drupal-custom-module"
+}
