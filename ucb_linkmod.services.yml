@@ -1,6 +1,9 @@
 services:
-  path_processor.ucb_linkmod:
-    class: Drupal\ucb_linkmod\PathProcessor\PathProcessorUcbLinkmod
+  ucb_linkmod_service:
+    class: Drupal\ucb_linkmod\Service
+
+  ucb_linkmod.middleware:
+    class: Drupal\ucb_linkmod\UcbLinkmodMiddleware
+    arguments: ['@config.factory']
     tags:
-      - { name: path_processor_inbound }
-      - { name: path_processor_outbound }
+      - { name: http_middleware, priority: 10 }

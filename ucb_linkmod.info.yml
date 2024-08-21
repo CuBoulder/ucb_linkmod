@@ -3,3 +3,5 @@ type: module
 description: 'Service and drush commands to modify links in drupal content areas.'
 package: Custom
 core_version_requirement: ^10 || ^11
+dependencies:
+  - pantheon_domain_masking
