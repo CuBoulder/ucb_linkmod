@@ -1,4 +1,4 @@
-name: 'ucb_linkmod'
+name: 'CU Boulder LinkMod'
 type: module
 description: 'Service and drush commands to modify links in drupal content areas.'
 package: Custom
