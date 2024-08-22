@@ -68,6 +68,10 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
             {
                 $sessionfound = true;
             }
+            if(str_starts_with($name, 'SSESS'))
+            {
+                $sessionfound = true;
+            }
         }
         if($sessionfound)
         {
@@ -87,7 +91,7 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
 
                 if(!is_null($response->headers->get('Content-Type'))) {
                     if (str_starts_with($response->headers->get('Content-Type'), 'text/html') && count($request->query->all()) === 0) {
-                        \Drupal::logger('ucb_linkmod')->info(print_r($response->headers->all(), true));
+//                        \Drupal::logger('ucb_linkmod')->info(print_r($response->headers->all(), true));
 
                         error_reporting(E_ALL & ~E_DEPRECATED);
                         $html = new HtmlDocument();
@@ -133,7 +137,7 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
                         $response->setContent((string)$html);
                         $response->headers->set('Content-Length', (string)strlen((string)$html));
 
-                        \Drupal::logger('ucb_linkmod')->info((string)$html);
+//                        \Drupal::logger('ucb_linkmod')->info((string)$html);
 
                         error_reporting(E_ALL);
 
