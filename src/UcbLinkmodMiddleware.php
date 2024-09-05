@@ -62,6 +62,7 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
     {
         $sessionfound = false;
 
+        // checking cookies to see if we have a vaid session cookie.
         foreach($request->cookies->all() as $name => $value)
         {
             if(str_starts_with($name, 'SESS'))
@@ -73,8 +74,10 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
                 $sessionfound = true;
             }
         }
+        // if there's a session cookie we know the user is logged in and we don't want to modify anything.  
         if($sessionfound)
         {
+            // just return what would normally have been returned without any changes
             return $this->httpKernel->handle($request, $type, $catch);
         }
 
@@ -89,6 +92,7 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
             {
                 $response = $this->httpKernel->handle($request, $type, $catch);
 
+                // we only want to to deal with text/html and leave other content types alone (e.g. js, css, json)
                 if(!is_null($response->headers->get('Content-Type'))) {
                     if (str_starts_with($response->headers->get('Content-Type'), 'text/html') && count($request->query->all()) === 0) {
 //                        \Drupal::logger('ucb_linkmod')->info(print_r($response->headers->all(), true));
