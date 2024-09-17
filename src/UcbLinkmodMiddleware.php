@@ -106,11 +106,17 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
                             $href = $newelement->href;
 
                             // if we have an anchor that isn't blank
-                            if ($href != false) {
+                            if ($href != false && gettype($href) == 'string') {
                                 // Look for p-value patterns in a absolute path (e.g. https://www.colorado.edu/p1ab3d5fgh9j)
                                 if (preg_match('/https:\/\/www\.colorado\.edu\/p1[0-9 a-z]{10}/', $href)) {
                                     // strip off the first 37 characters which will leave just the relative content path starting with a /
                                     $href = substr($href, 37);
+                                    // the next section of code should match and pick this up to finish correcting the URL now
+
+                                }
+                                if (preg_match('/pantheonsite\.io/', $href)) {
+                                    // strip off the first 37 characters which will leave just the relative content path starting with a /
+                                    $href = explode('pantheonsite.io', $href)[1];
                                     // the next section of code should match and pick this up to finish correcting the URL now
 
                                 }
