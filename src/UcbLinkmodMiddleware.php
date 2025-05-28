@@ -25,24 +25,18 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
      *
      * @var \Symfony\Component\HttpKernel\HttpKernelInterface
      */
-    protected $httpKernel;
+    protected readonly HttpKernelInterface $httpKernel;
 
     /**
      * The site settings.
      *
      * @var \Drupal\Core\Config\ConfigFactory
      */
-    protected $configFactory;
+    protected readonly ConfigFactory $configFactory;
+
 
     /**
-     * The original request when this middleware was first run.
-     *
-     * @var \Symfony\Component\HttpFoundation\Request;
-     */
-    protected $origRequest;
-
-    /**
-     * Create a new StackOptionsRequest instance.
+     * Create a new UcbLinkmodMiddleware instance.
      *
      * @param \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel
      *   The decorated kernel.
@@ -60,6 +54,7 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
      */
     public function handle(Request $request, $type = self::MAIN_REQUEST, $catch = TRUE): Response
     {
+//        \Drupal::logger('ucb_linkmod')->info("Linkmod entered");
         $sessionfound = false;
 
         // checking cookies to see if we have a vaid session cookie.
@@ -90,11 +85,14 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
             $enabled = \filter_var($config->get('enabled', 'no'), FILTER_VALIDATE_BOOLEAN);
             if ($enabled === TRUE)
             {
+
                 $response = $this->httpKernel->handle($request, $type, $catch);
 
                 // we only want to to deal with text/html and leave other content types alone (e.g. js, css, json)
-                if(!is_null($response->headers->get('Content-Type'))) {
-                    if (str_starts_with($response->headers->get('Content-Type'), 'text/html') && count($request->query->all()) === 0) {
+                if(!is_null($response->headers->get('Content-Type')))
+                {
+                    if (str_starts_with($response->headers->get('Content-Type'), 'text/html') && count($request->query->all()) === 0)
+                    {
 //                        \Drupal::logger('ucb_linkmod')->info(print_r($response->headers->all(), true));
 
                         error_reporting(E_ALL & ~E_DEPRECATED);
@@ -151,12 +149,16 @@ final class UcbLinkmodMiddleware implements HttpKernelInterface
 
                         error_reporting(E_ALL);
 
+//                        \Drupal::logger('ucb_linkmod')->info("Modified return");
                         return $response;
 
                     }
                 }
+//                \Drupal::logger('ucb_linkmod')->info("Unmodified return");
+                return $response;
             }
         }
+//        \Drupal::logger('ucb_linkmod')->info("CLI return");
         return $this->httpKernel->handle($request, $type, $catch);
     }
 }
